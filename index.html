@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alpha Guard - Secure Password Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121212;
+            color: #fff;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+        }
+        .strength {
+            margin: 10px 0;
+            font-size: 16px;
+        }
+        .strength.weak {
+            color: red;
+        }
+        .strength.medium {
+            color: orange;
+        }
+        .strength.strong {
+            color: green;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background: #007BFF;
+            border: none;
+            border-radius: 5px;
+            font-size: 18px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .button-spacing {
+            margin-bottom: 10px; /* Added spacing between buttons */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Alpha Guard</h1>
+        <select id="length">
+            <option value="8">8 Characters</option>
+            <option value="12" selected>12 Characters</option>
+            <option value="16">16 Characters</option>
+            <option value="20">20 Characters</option>
+        </select>
+        <div>
+            <label><input type="checkbox" id="uppercase" checked> Include Uppercase</label><br>
+            <label><input type="checkbox" id="lowercase" checked> Include Lowercase</label><br>
+            <label><input type="checkbox" id="numbers" checked> Include Numbers</label><br>
+            <label><input type="checkbox" id="symbols" checked> Include Symbols</label><br>
+        </div>
+        <input type="text" id="password" readonly>
+        <button class="button-spacing" onclick="generatePassword()">Generate Password</button>
+        <button onclick="copyToClipboard()">Copy to Clipboard</button>
+        <div id="password-strength" class="strength">Strength: </div>
+    </div>
+
+    <script>
+        function generatePassword() {
+            const upperCaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const lowerCaseChars = "abcdefghijklmnopqrstuvwxyz";
+            const numberChars = "0123456789";
+            const symbolChars = "!@#$%^&*()_+";
+            
+            let password = "";
+            let selectedChars = "";
+            let length = document.getElementById("length").value;
+
+            if (document.getElementById("uppercase").checked) selectedChars += upperCaseChars;
+            if (document.getElementById("lowercase").checked) selectedChars += lowerCaseChars;
+            if (document.getElementById("numbers").checked) selectedChars += numberChars;
+            if (document.getElementById("symbols").checked) selectedChars += symbolChars;
+
+            for (let i = 0; i < length; i++) {
+                password += selectedChars.charAt(Math.floor(Math.random() * selectedChars.length));
+            }
+
+            document.getElementById("password").value = password;
+            updateStrength(password);
+        }
+
+        function updateStrength(password) {
+            let strength = "Weak";
+            const regexLowercase = /[a-z]/;
+            const regexUppercase = /[A-Z]/;
+            const regexNumbers = /\d/;
+            const regexSymbols = /[!@#$%^&*()_+]/;
+
+            if (password.length >= 8 && regexLowercase.test(password) && regexUppercase.test(password) && regexNumbers.test(password) && regexSymbols.test(password)) {
+                strength = "Strong";
+            } else if (password.length >= 8 && regexLowercase.test(password) && regexUppercase.test(password) && (regexNumbers.test(password) || regexSymbols.test(password))) {
+                strength = "Medium";
+            }
+
+            // If password is less than 8 characters, it's still considered weak
+            if (password.length < 8) {
+                strength = "Weak";
+            }
+
+            document.getElementById("password-strength").innerText = "Strength: " + strength;
+            document.getElementById("password-strength").className = "strength " + strength.toLowerCase();
+        }
+
+        function copyToClipboard() {
+            const passwordField = document.getElementById("password");
+            passwordField.select();
+            passwordField.setSelectionRange(0, 99999); // For mobile devices
+            document.execCommand("copy");
+            alert("Password copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
