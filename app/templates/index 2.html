@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AlphaGuard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 255, 255, 0.1), rgba(10, 10, 10, 1));
+            color: #fff;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: #121212;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 20px rgba(0, 255, 255, 0.5);
+            width: 90%;
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #00FFFF, #007BFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        input, select, button {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 18px;
+            text-align: center;
+        }
+        button {
+            font-weight: bold;
+            color: white;
+            background: #007BFF;
+            box-shadow: 0px 0px 10px rgba(0, 255, 255, 0.7);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+        }
+        .difficulty {
+            font-size: 1.2rem;
+            margin-top: 10px;
+        }
+        .difficulty.weak { color: red; }
+        .difficulty.moderate { color: #B8860B; }
+        .difficulty.strong { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>AlphaGuard</h1>
+        <input type="text" id="passwordDisplay" placeholder="Generated password..." readonly>
+        <input type="number" id="passwordLength" placeholder="Enter password length" min="9" value="12">
+        <div>
+            <label><input type="checkbox" id="includeUppercase"> Uppercase</label>
+            <label><input type="checkbox" id="includeNumbers"> Numbers</label>
+            <label><input type="checkbox" id="includeSymbols"> Symbols</label>
+        </div>
+        <button onclick="generatePassword()">Generate Password</button>
+        <button onclick="copyPassword()">Copy to Clipboard</button>
+        <div id="passwordDifficulty" class="difficulty"></div>
+    </div>
+    <script>
+        function generatePassword() {
+            const length = parseInt(document.getElementById("passwordLength").value);
+            if (length < 9) {
+                alert("Password must be at least 9 characters long.");
+                return;
+            }
+            const includeUppercase = document.getElementById("includeUppercase").checked;
+            const includeNumbers = document.getElementById("includeNumbers").checked;
+            const includeSymbols = document.getElementById("includeSymbols").checked;
+            const lowercaseChars = "abcdefghijklmnopqrstuvwxyz";
+            const uppercaseChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const numberChars = "0123456789";
+            const symbolChars = "!@#$%^&*()_+~|}{[]:;?><,./-=";
+            let allowedChars = lowercaseChars;
+            if (includeUppercase) allowedChars += uppercaseChars;
+            if (includeNumbers) allowedChars += numberChars;
+            if (includeSymbols) allowedChars += symbolChars;
+            let password = "";
+            for (let i = 0; i < length; i++) {
+                password += allowedChars.charAt(Math.floor(Math.random() * allowedChars.length));
+            }
+            document.getElementById("passwordDisplay").value = password;
+            updatePasswordDifficulty(password);
+        }
+        function updatePasswordDifficulty(password) {
+            const difficultyElement = document.getElementById("passwordDifficulty");
+            const hasUppercase = /[A-Z]/.test(password);
+            const hasNumbers = /[0-9]/.test(password);
+            const hasSymbols = /[!@#$%^&*()_+~|}{[\]:;?><,./=-]/.test(password);
+            let complexity = [hasUppercase, hasNumbers, hasSymbols].filter(Boolean).length;
+            let strength = "Weak";
+            if (password.length >= 9 && complexity >= 2) strength = "Moderate";
+            if (password.length >= 9 && complexity >= 3) strength = "Strong";
+            if (password.length >= 12 && complexity === 3) strength = "Very Strong";
+            difficultyElement.textContent = `Password Strength: ${strength}`;
+            difficultyElement.className = `difficulty ${strength.toLowerCase().replace(" ", "-")}`;
+        }
+        function copyPassword() {
+            const passwordField = document.getElementById("passwordDisplay");
+            passwordField.select();
+            document.execCommand("copy");
+            alert("Password copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
